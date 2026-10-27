@@ -1,0 +1,334 @@
+/* ==========================================================================
+   PAY2B — Camada guiada do totem (sobre styles.css)
+   Mantém as telas reais do produto e adiciona: tela de espera, gancho,
+   barra de pilares + legenda única no topo, CTA único no rodapé e encerramento.
+   ========================================================================== */
+#stage.tour { --head-h: 290px; --dock-h: 210px; }
+#stage.tour em { font-style: normal; color: var(--accent); }
+
+/* ---------- Topo: logo, pilares e legenda ---------- */
+.tour-head { position: absolute; top: 0; left: 0; right: 0; height: var(--head-h); z-index: 15; padding: 46px 64px 0;
+  display: flex; flex-direction: column; gap: 26px; transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.tour-top { display: flex; align-items: center; justify-content: space-between; }
+.tour-logo { height: 46px; width: auto; }
+.tour-count { font-size: 24px; color: var(--text-3); letter-spacing: .1em; }
+.tour-pillars { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.tour-pillars li { display: flex; flex-direction: column; gap: 10px; font-size: 22px; font-weight: 500; color: var(--text-3); transition: color .4s; }
+.tour-pillars li i { height: 7px; border-radius: 7px; background: rgba(255,255,255,.1); position: relative; overflow: hidden; }
+.tour-pillars li i::after { content: ''; position: absolute; inset: 0; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .7s var(--ease); }
+.tour-pillars li.done { color: var(--text-2); }
+.tour-pillars li.current { color: var(--accent); }
+.tour-pillars li.done i::after, .tour-pillars li.current i::after { transform: scaleX(1); }
+.tour-caption { font-size: 50px; line-height: 1.1; font-weight: 700; letter-spacing: -.025em; color: var(--text); min-height: 56px; }
+.tour-caption.swap { animation: capIn .6s var(--ease); }
+@keyframes capIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Rodapé: CTA único ---------- */
+/* ---------- Rodapé: CTA único ---------- */
+.tour-dock {
+  position: absolute; left: 0; right: 0; bottom: 0; height: var(--dock-h); z-index: 15; padding: 28px 64px 48px;
+  display: flex; gap: 20px; align-items: center; background: var(--bg); transition: opacity .4s var(--ease), transform .4s var(--ease);
+}
+.tour-next {
+  flex: 1;
+  min-width: 0;
+  height: 124px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 36px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 32px;
+  text-align: center;
+  line-height: 1.15;
+  transition: transform .2s var(--spring), opacity .3s, background .3s, font-size .15s ease;
+  overflow: hidden;
+}
+.tour-next span {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.tour-next svg {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  stroke-width: 2.4;
+}
+.tour-next:active { transform: scale(.97); }
+.tour-next:disabled { opacity: .45; cursor: default; }
+.tour-next.busy svg { display: none; }
+.tour-next.ready { animation: tourNudge 1.8s ease-in-out infinite; }
+@keyframes tourNudge { 0%, 100% { transform: none; box-shadow: 0 0 0 0 rgba(127,204,40,.45); } 50% { transform: scale(1.025); box-shadow: 0 0 0 18px rgba(127,204,40,0); } }
+
+/* Modificadores de tamanho de fonte dinâmicos para textos longos no botão */
+.tour-next[data-size="md"] { font-size: 30px; padding: 0 26px; }
+.tour-next[data-size="sm"] { font-size: 25px; padding: 0 20px; }
+.tour-next[data-size="xs"] { font-size: 21px; padding: 0 16px; }
+
+.tour-restart { flex: none; width: 124px; height: 124px; border-radius: 50%; border: 2px solid var(--line-strong); color: var(--text-2); display: grid; place-items: center; }
+.tour-restart svg { width: 50px; height: 50px; }
+.tour-restart:active { background: var(--surface-2); }
+
+/* Esconde a camada guiada no attract e durante o modal de sucesso */
+#stage.tour[data-screen="menu"] .tour-head,
+#stage.tour[data-screen="menu"] .tour-dock { opacity: 0; pointer-events: none; transform: translateY(-16px); }
+#stage.tour[data-screen="menu"] .tour-dock { transform: translateY(16px); }
+#stage.tour.ok-open .tour-dock, #stage.tour.ok-open .tour-head { opacity: 0; pointer-events: none; }
+#stage.tour[data-screen="hook"] .tour-pillars, #stage.tour[data-screen="hook"] .tour-count,
+#stage.tour[data-screen="end"] .tour-count { visibility: hidden; }
+
+/* ---------- Telas reais encaixadas como um "aparelho" entre topo e rodapé ---------- */
+#stage.tour .screen.screen-white { top: var(--head-h); bottom: var(--dock-h); left: 36px; right: 36px; border-radius: 40px; overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+/* Remoção de ruído: títulos duplicados, status bar falsa, docks internos, rodapés */
+#stage.tour .screen-white .title,
+#stage.tour .screen-white .phone-status-bar,
+#stage.tour .screen-white .totem-dock,
+#stage.tour .screen-white > .dock,
+#stage.tour .screen-white .mobile-footer-brand,
+#stage.tour .screen-white .alert-blue,
+#stage.tour #screen-checkout .stepper-mobile { display: none !important; }
+#stage.tour .toast { bottom: calc(var(--dock-h) + 30px); }
+
+/* ---------- Attract ---------- */
+.attract { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 70px; padding: 0 80px; }
+.attract-logo { height: 86px; width: auto; }
+.attract h1 { font-size: 150px; line-height: 1; font-weight: 700; letter-spacing: -.045em; }
+.attract-sub { font-size: 38px; color: var(--text-2); max-width: 760px; line-height: 1.35; }
+.pulse { position: relative; width: 230px; height: 230px; display: grid; place-items: center; color: var(--accent); cursor: pointer; margin-top: 10px; }
+.pulse svg { width: 114px; height: 114px; animation: tapHint 2.4s var(--ease) infinite; }
+.pulse span { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--accent); opacity: 0; animation: ringOut 2.4s ease-out infinite; }
+.pulse span:nth-child(2) { animation-delay: .8s; } .pulse span:nth-child(3) { animation-delay: 1.6s; }
+@keyframes ringOut { 0% { transform: scale(.5); opacity: .8; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes tapHint { 0%, 100% { transform: none; } 15% { transform: translateY(10px) scale(.94); } 30% { transform: none; } }
+
+/* ---------- Gancho ---------- */
+.hook {
+  height: 100%;
+  padding: var(--head-h) 72px var(--dock-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+}
+.hook-eyebrow {
+  font-size: 36px;
+  font-weight: 500;
+  color: var(--text-2);
+  letter-spacing: 0.02em;
+}
+.hook-num {
+  font-size: 180px;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--danger);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  display: block;
+}
+.hook h2 {
+  font-size: 68px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  max-width: 920px;
+}
+.hook h2 em {
+  display: inline-block;
+  white-space: nowrap;
+}
+.screen.active .hook > * { animation: rise .8s var(--ease) both; }
+.screen.active .hook > :nth-child(2) { animation-delay: .15s; }
+.screen.active .hook > :nth-child(3) { animation-delay: .45s; }
+
+/* ---------- Encerramento ---------- */
+.end { height: 100%; padding: var(--head-h) 80px var(--dock-h); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 44px; }
+.end h2 { font-size: 110px; line-height: 1; font-weight: 700; letter-spacing: -.04em; }
+.end-recap { list-style: none; display: flex; flex-direction: column; gap: 18px; align-items: flex-start; }
+.end-recap li { display: flex; align-items: center; gap: 22px; font-size: 36px; color: var(--text); opacity: 0; transform: translateX(-20px); }
+.end-recap i { width: 54px; height: 54px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-style: normal; font-size: 30px; font-weight: 700; }
+.screen.active .end-recap li { animation: rise .6s var(--ease) forwards; }
+.screen.active .end-recap li:nth-child(1) { animation-delay: .3s; } .screen.active .end-recap li:nth-child(2) { animation-delay: .5s; }
+.screen.active .end-recap li:nth-child(3) { animation-delay: .7s; } .screen.active .end-recap li:nth-child(4) { animation-delay: .9s; }
+.end-qr { width: 300px; height: 300px; border-radius: 26px; background: #fff; padding: 18px; }
+.end-cta { font-size: 58px; font-weight: 700; line-height: 1.15; letter-spacing: -.02em; }
+.end-seal { font-size: 24px; color: var(--text-3); }
+
+/* ---------- Combo de parcelas no checkout (Cartão, Pix e Boleto) ---------- */
+#f-inst, #f-pix-inst, #f-boleto-inst {
+  position: relative;
+  cursor: pointer;
+  padding-right: 56px;
+}
+#f-inst::after, #f-pix-inst::after, #f-boleto-inst::after {
+  content: '';
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-right: 2.5px solid #64748B;
+  border-bottom: 2.5px solid #64748B;
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform .25s var(--ease);
+  pointer-events: none;
+}
+#f-inst.select-open::after, #f-pix-inst.select-open::after, #f-boleto-inst.select-open::after {
+  transform: translateY(-30%) rotate(-135deg);
+  border-color: #76B82A;
+}
+#f-inst .caret, #f-pix-inst .caret, #f-boleto-inst .caret {
+  display: none !important;
+}
+.select-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 16px;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+  list-style: none;
+  padding: 8px;
+  animation: selectPop .25s var(--spring) forwards;
+}
+@keyframes selectPop {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.select-list li {
+  padding: 16px 20px;
+  font-size: 22px;
+  font-weight: 500;
+  color: #334155;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all .15s ease;
+}
+.select-list li.hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+.select-list li.picked {
+  background: rgba(118, 184, 42, 0.14);
+  color: #15803D;
+  font-weight: 600;
+}
+.select-list li.picked::after {
+  content: '✓';
+  font-weight: 700;
+  color: #16A34A;
+  font-size: 20px;
+}
+
+/* ---------- Campos gerados pelo sistema (Pix / Boleto) ---------- */
+.input-w.sys, .input.sys {
+  background: #F8FAFC !important;
+  border-color: #94A3B8 !important;
+  position: relative;
+  animation: sysPulse .5s var(--ease) forwards;
+}
+.input-w.sys .caret, .input.sys .caret {
+  display: none !important;
+}
+@keyframes sysPulse {
+  0% { background: rgba(118, 184, 42, 0.18) !important; border-color: #76B82A !important; }
+  100% { background: #F8FAFC !important; border-color: #CBD5E1 !important; }
+}
+
+/* ---------- Badges de Status de Cobrança (Fintech Enterprise) ---------- */
+.status-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 8px 18px !important;
+  border-radius: 999px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  min-width: 145px !important;
+  height: 46px !important;
+  box-sizing: border-box !important;
+  flex: none !important;
+  font-family: 'Poppins', system-ui, sans-serif !important;
+}
+.status-pill svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
+  flex: none;
+}
+
+/* Pago via Pix ou Cartão */
+.status-pill.paid {
+  background: #DCFCE7 !important;
+  border: 1.5px solid #86EFAC !important;
+  color: #15803D !important;
+}
+
+/* Link Aberto */
+.status-pill.opened {
+  background: #FEF3C7 !important;
+  border: 1.5px solid #FCD34D !important;
+  color: #B45309 !important;
+}
+
+/* Link Enviado */
+.status-pill.sent {
+  background: #E0F2FE !important;
+  border: 1.5px solid #BAE6FD !important;
+  color: #0369A1 !important;
+}
+
+/* Enviando */
+.status-pill.sending {
+  background: #F1F5F9 !important;
+  border: 1.5px solid #CBD5E1 !important;
+  color: #475569 !important;
+}
+
+/* Botão Ação Cobrar */
+.btn-cobrar {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 8px 20px !important;
+  border-radius: 999px !important;
+  background: #76B82A !important;
+  color: #FFFFFF !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+  min-width: 130px !important;
+  height: 46px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 4px 12px rgba(118, 184, 42, 0.35) !important;
+  transition: transform .15s ease, background .2s ease !important;
+  flex: none !important;
+  font-family: 'Poppins', system-ui, sans-serif !important;
+}
+.btn-cobrar:active {
+  transform: scale(0.96) !important;
+}
+.btn-cobrar svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.2;
+}
+
+@media (prefers-reduced-motion: reduce) { #stage.tour *, #stage.tour *::before, #stage.tour *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
