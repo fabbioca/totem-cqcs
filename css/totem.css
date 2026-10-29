@@ -125,6 +125,7 @@
   letter-spacing: 0.02em;
 }
 .hook-num {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 180px;
   line-height: 1;
   font-weight: 700;
